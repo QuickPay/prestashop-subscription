@@ -1,0 +1,66 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "4764cbed8530de90de0073203f9b61ad",
+    "packages": [
+        {
+            "name": "quickpay/quickpay-php-client",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/QuickPay/quickpay-php-client.git",
+                "reference": "31ec24f449b6bc27607773098e150a3f005441ad"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/QuickPay/quickpay-php-client/zipball/31ec24f449b6bc27607773098e150a3f005441ad",
+                "reference": "31ec24f449b6bc27607773098e150a3f005441ad",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.8.*",
+                "satooshi/php-coveralls": "1.0.*",
+                "squizlabs/php_codesniffer": "2.8.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "QuickPay\\": "QuickPay/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHP-SDK to communicate with the payment provider QuickPay",
+            "homepage": "https://github.com/QuickPay/quickpay-php-client",
+            "support": {
+                "issues": "https://github.com/QuickPay/quickpay-php-client/issues",
+                "source": "https://github.com/QuickPay/quickpay-php-client/tree/1.1.0"
+            },
+            "time": "2019-12-16T08:34:34+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=7.2.0",
+        "ext-json": "*"
+    },
+    "platform-dev": [],
+    "platform-overrides": {
+        "php": "7.2"
+    },
+    "plugin-api-version": "2.3.0"
+}

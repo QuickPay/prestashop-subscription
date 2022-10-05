@@ -1,0 +1,75 @@
+#product {
+  .subscription_plans {
+    display: none;
+    &.active {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+    }
+  }
+  select[name=quickpaysubscription_selected_plan_frequency] {
+    padding: 0.175rem 0.5rem;
+    color: #232323;
+    background-color: #fff;
+  }
+}
+
+.quickpaysubscription_info {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  z-index: 100;
+  width: 300px;
+  height: 150px;
+  max-width: 300px;
+  max-height: 150px;
+  padding: 15px 30px 15px;
+  border: 1px solid #dddddd;
+  &.active {
+    display: block;
+  }
+  svg {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    &:hover {
+      path {
+        fill: #ddd;
+      }
+    }
+  }
+  p {
+    width: 100%;
+    display: block;
+    text-align: center;
+    font-size: 1rem;
+    padding: 0 15px;
+    color: #000;
+  }
+  span {
+    margin: 15px auto 0;
+    width: 100%;
+  }
+}
+
+.quickpaysubscription_show_subscription {
+  svg {
+    path {
+      fill: #000000;
+    }
+  }
+
+  &:hover {
+    svg {
+      path {
+        fill: #dddddd;
+      }
+    }
+  }
+}

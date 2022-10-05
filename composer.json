@@ -1,0 +1,32 @@
+{
+  "name": "quickpay/quickpaysubscription",
+  "description": "Prestashop module for Quickpay subscriptions",
+  "homepage": "https://quickpay.net",
+  "license": "AFL-3.0",
+  "type": "prestashop-module",
+  "authors": [
+    {
+      "name": "B-Ant Digital Solutions Zrt.",
+      "email": "contact@blueant-solutions.com"
+    }
+  ],
+  "config": {
+    "platform": {
+      "php": "7.2"
+    },
+    "preferred-install": "dist",
+    "optimize-autoloader": true,
+    "prepend-autoloader": false
+  },
+  "require": {
+    "php": ">=7.2.0",
+    "ext-json": "*",
+    "quickpay/quickpay-php-client": "1.1.*"
+  },
+  "autoload": {
+    "psr-4":{
+      "QuickpaySubscripton\\": "src/"
+    },
+    "classmap": ["quickpaysubscription.php"]
+  }
+}

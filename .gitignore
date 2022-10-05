@@ -1,0 +1,6 @@
+.idea
+config*.xml
+logs/*.log
+
+!logs/index.php
+!composer.lock
