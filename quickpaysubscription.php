@@ -37,7 +37,7 @@ class QuickpaySubscription extends PaymentModule
     {
         $this->name = 'quickpaysubscription';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'Quickpay';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = [
@@ -125,6 +125,7 @@ class QuickpaySubscription extends PaymentModule
     public function hooks()
     {
         $hookList = [
+            'actionAuthentication',
             'actionProductAdd',
             'actionProductUpdate',
             'actionProductDelete',
@@ -259,6 +260,23 @@ class QuickpaySubscription extends PaymentModule
                             ),
                         ),
                     ],
+                    [
+                        'type' => 'switch',
+                        'label' => $this->getTranslator()->trans('Show subscription information when not logged in', [], 'Modules.Quickpaysubscription.Admin'),
+                        'name' => 'QUICKPAY_SUBSCRIPTION_SHOW_WHEN_NOT_LOGGED_IN',
+                        'values' => array(
+                            array(
+                                'id' => 'show_not_logged_in_on',
+                                'value' => 1,
+                                'label' => $this->l('Enabled'),
+                            ),
+                            array(
+                                'id' => 'show_not_logged_in_off',
+                                'value' => 0,
+                                'label' => $this->l('Disabled'),
+                            ),
+                        ),
+                    ],
                 ],
                 'submit' => [
                     'title' => $this->getTranslator()->trans('Save', [], 'Admin.Actions'),
@@ -338,6 +356,7 @@ class QuickpaySubscription extends PaymentModule
                     'QUICKPAY_SUBSCRIPTION_STATUS' => Tools::getValue('QUICKPAY_SUBSCRIPTION_STATUS', Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS')),
                     'QUICKPAY_SUBSCRIPTION_USER_CANCEL' => Tools::getValue('QUICKPAY_SUBSCRIPTION_USER_CANCEL', Configuration::get('QUICKPAY_SUBSCRIPTION_USER_CANCEL')),
                     'QUICKPAY_SUBSCRIPTION_DISABLE_PAYMENTS' => Tools::getValue('QUICKPAY_SUBSCRIPTION_DISABLE_PAYMENTS', Configuration::get('QUICKPAY_SUBSCRIPTION_DISABLE_PAYMENTS')),
+                    'QUICKPAY_SUBSCRIPTION_SHOW_WHEN_NOT_LOGGED_IN' => Tools::getValue('QUICKPAY_SUBSCRIPTION_SHOW_WHEN_NOT_LOGGED_IN', Configuration::get('QUICKPAY_SUBSCRIPTION_SHOW_WHEN_NOT_LOGGED_IN')),
                 ];
         }
     }
@@ -360,7 +379,8 @@ class QuickpaySubscription extends PaymentModule
                 $keys = [
                     'QUICKPAY_SUBSCRIPTION_STATUS',
                     'QUICKPAY_SUBSCRIPTION_USER_CANCEL',
-                    'QUICKPAY_SUBSCRIPTION_DISABLE_PAYMENTS'
+                    'QUICKPAY_SUBSCRIPTION_DISABLE_PAYMENTS',
+                    'QUICKPAY_SUBSCRIPTION_SHOW_WHEN_NOT_LOGGED_IN',
                 ];
                 break;
         }
@@ -564,8 +584,7 @@ class QuickpaySubscription extends PaymentModule
      */
     public function hookActionObjectProductInCartDeleteAfter($params)
     {
-        if (!Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS') ||
-            !$this->context->customer->isLogged()) {
+        if (!Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS')) {
             return false;
         }
 
@@ -586,8 +605,7 @@ class QuickpaySubscription extends PaymentModule
      */
     public function hookActionCartUpdateQuantityBefore($params)
     {
-        if (!Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS') ||
-            !$this->context->customer->isLogged()) {
+        if (!Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS')) {
             return false;
         }
 
@@ -618,14 +636,20 @@ class QuickpaySubscription extends PaymentModule
      */
     public function hookDisplayProductPriceBlock($params)
     {
-        if (!Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS') || !$this->context->customer->isLogged()) {
+        if (!Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS')) {
             return false;
+        }
+
+        if (!Context::getContext()->customer->isLogged()) {
+            if (!Configuration::get('QUICKPAY_SUBSCRIPTION_SHOW_WHEN_NOT_LOGGED_IN')) {
+                return false;
+            }
         }
 
         $idProduct = (int) Tools::getValue('id_product');
         $idProductAttribute = (int) Tools::getValue('id_product_attribute', 0);
 
-        if (!$idProduct || !Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS')) {
+        if (!$idProduct) {
             return false;
         }
 
@@ -658,7 +682,7 @@ class QuickpaySubscription extends PaymentModule
      */
     public function hookActionFrontControllerSetMedia($params)
     {
-        if (!Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS') || !$this->context->customer->isLogged()) {
+        if (!Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS')) {
             return false;
         }
 
@@ -673,7 +697,7 @@ class QuickpaySubscription extends PaymentModule
                 'modules/'.$this->name.'/views/js/script.js',
                 [
                     'priority' => 300,
-                    'attribute' => 'async',
+                    'attribute' => 'defer',
                 ]
             );
 
@@ -713,8 +737,7 @@ class QuickpaySubscription extends PaymentModule
     {
         if (!Module::isEnabled('quickpay') ||
             !Configuration::get('QUICKPAY_SUBSCRIPTION_STATUS') ||
-            !in_array($this->context->controller->php_self, ['cart', 'order']) ||
-            !$this->context->customer->isLogged()) {
+            !in_array($this->context->controller->php_self, ['cart', 'order'])) {
             return false;
         }
 
@@ -1062,5 +1085,25 @@ class QuickpaySubscription extends PaymentModule
     public function addLog($message, $severity = 1, $error_code = null, $object_type = null, $object_id = null)
     {
         Logger::addLog($message, $severity, $error_code, $object_type, $object_id);
+    }
+
+    /**
+     * Update the subscription cart after successful login
+     *
+     * @throws PrestaShopException
+     * @throws PrestaShopDatabaseException
+     */
+    public function hookActionAuthentication($params)
+    {
+
+        $subscriptionCartId = QuickpaySubscriptionCart::getIdByCartId(Context::getContext()->cart->id);
+        if (!$subscriptionCartId) {
+            return false;
+        }
+
+        $subscriptionCart = new QuickpaySubscriptionCart($subscriptionCartId);
+        $subscriptionCart->id_customer = Context::getContext()->customer->id;
+
+        $subscriptionCart->save();
     }
 }
