@@ -47,6 +47,14 @@ class QuickpaySubscriptionAjaxModuleFrontController extends ModuleFrontControlle
             $status = true;
         }
 
+        if (!Context::getContext()->customer->isLogged() && $statusSubscribe) {
+            $this->ajaxRender(json_encode([
+                'status' => true,
+                'error' => 'login'
+            ]));
+            return;
+        }
+
         $plans = array_unique($plans);
         $frequencies = array_unique($frequencies);
 

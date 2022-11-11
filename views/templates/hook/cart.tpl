@@ -1,6 +1,9 @@
 <div class="quickpay-subscription-cart-status" style="display: none">
-  <div class="col-md-12 alert-danger text-black py-1 my-1">
-      {l s='The cart contains both subsciption and not subscription products or the subscription product\'s frequency are difference. Please remove one of type to continue' mod='quickpaysubscription'}
+  <div class="col-md-12 alert-danger text-black py-1 my-1 general" style="display: none">
+    {l s='The cart contains both subscription and not subscription products or the subscription product\'s frequency are difference. Please remove one of type to continue' mod='quickpaysubscription'}
+  </div>
+  <div class="col-md-12 alert-danger text-black py-1 my-1 login" style="display: none">
+    {l s='The cart contains subscription product(s). Please log in first to continue' mod='quickpaysubscription'}
   </div>
 </div>
 
@@ -10,7 +13,7 @@
       $.ajax({
         url: quickpaysubscription_ajax_url,
         cache: false,
-        async: false,
+        async: true,
         type: 'POST',
         data: {
           ajax: true,
@@ -20,43 +23,93 @@
         success: function (response) {
           response = JSON.parse(response)
           if (response['status'] === true) {
-            document.querySelector('.checkout.cart-detailed-actions a').classList.add('disabled')
-            document.querySelector('.quickpay-subscription-cart-status').style.display = 'block'
+            if (typeof response['error'] !== 'undefined') {
+              if (document.querySelector('.checkout.cart-detailed-actions a') != null) {
+                document.querySelector('.checkout.cart-detailed-actions a').classList.add('disabled')
+              }
+              if (document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout') != null) {
+                document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout').classList.add('disabled')
+              }
+
+              document.querySelector('.quickpay-subscription-cart-status').style.display = 'block'
+              document.querySelector('.quickpay-subscription-cart-status .login').style.display = 'block'
+            } else {
+              if (document.querySelector('.checkout.cart-detailed-actions a') != null) {
+                document.querySelector('.checkout.cart-detailed-actions a').classList.add('disabled')
+              }
+              if (document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout') != null) {
+                document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout').classList.add('disabled')
+              }
+              document.querySelector('.quickpay-subscription-cart-status').style.display = 'block'
+              document.querySelector('.quickpay-subscription-cart-status .general').style.display = 'block'
+            }
           } else {
-            document.querySelector('.checkout.cart-detailed-actions a').classList.remove('disabled')
+            if (document.querySelector('.checkout.cart-detailed-actions a') != null) {
+              document.querySelector('.checkout.cart-detailed-actions a').classList.remove('disabled')
+            }
+            if (document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout') != null) {
+              document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout').classList.remove('disabled')
+            }
             document.querySelector('.quickpay-subscription-cart-status').style.display = 'none'
+            document.querySelector('.quickpay-subscription-cart-status .general').style.display = 'none'
+            document.querySelector('.quickpay-subscription-cart-status .login').style.display = 'none'
           }
         }
       })
     }, 250);
 
     prestashop.on('updateCart',
-      function (e) {
-        window.setTimeout(function () {
-          $.ajax({
-            url: quickpaysubscription_ajax_url,
-            cache: false,
-            async: false,
-            type: 'POST',
-            data: {
-              ajax: true,
-              action: 'check',
-              token: quickpaysubscription_token
-            },
-            success: function (response) {
-              response = JSON.parse(response)
-              if (response['status'] === true) {
-                document.querySelector('.checkout.cart-detailed-actions a').classList.add('disabled')
-                document.querySelector('.quickpay-subscription-cart-status').style.display = 'block'
-              } else {
-                document.querySelector('.checkout.cart-detailed-actions a').classList.remove('disabled')
-                document.querySelector('.quickpay-subscription-cart-status').style.display = 'none'
-              }
-            }
-          })
-        }, 250);
-
-      });
+            function (e) {
+              window.setTimeout(function () {
+                $.ajax({
+                  url: quickpaysubscription_ajax_url,
+                  cache: false,
+                  async: true,
+                  type: 'POST',
+                  data: {
+                    ajax: true,
+                    action: 'check',
+                    token: quickpaysubscription_token
+                  },
+                  success: function (response) {
+                    response = JSON.parse(response)
+                    window.setTimeout(function () {
+                      if (response['status'] === true) {
+                        if (typeof response['error'] !== 'undefined') {
+                          if (document.querySelector('.checkout.cart-detailed-actions a') != null) {
+                            document.querySelector('.checkout.cart-detailed-actions a').classList.add('disabled')
+                          }
+                          if (document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout') != null) {
+                            document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout').classList.add('disabled')
+                          }
+                          document.querySelector('.quickpay-subscription-cart-status').style.display = 'block'
+                          document.querySelector('.quickpay-subscription-cart-status .login').style.display = 'block'
+                        } else {
+                          if (document.querySelector('.checkout.cart-detailed-actions a') != null) {
+                            document.querySelector('.checkout.cart-detailed-actions a').classList.add('disabled')
+                          }
+                          if (document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout') != null) {
+                            document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout').classList.add('disabled')
+                          }
+                          document.querySelector('.quickpay-subscription-cart-status').style.display = 'block'
+                          document.querySelector('.quickpay-subscription-cart-status .general').style.display = 'block'
+                        }
+                      } else {
+                        if (document.querySelector('.checkout.cart-detailed-actions a') != null) {
+                          document.querySelector('.checkout.cart-detailed-actions a').classList.remove('disabled')
+                        }
+                        if (document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout') != null) {
+                          document.querySelector('.checkout.cart-detailed-actions .mobilepay-checkout').classList.remove('disabled')
+                        }
+                        document.querySelector('.quickpay-subscription-cart-status').style.display = 'none'
+                        document.querySelector('.quickpay-subscription-cart-status .general').style.display = 'none'
+                        document.querySelector('.quickpay-subscription-cart-status .login').style.display = 'none'
+                      }
+                    }, 150);
+                  }
+                })
+              }, 250);
+            });
   })
 </script>
 

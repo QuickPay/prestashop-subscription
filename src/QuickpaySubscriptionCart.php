@@ -148,6 +148,22 @@ class QuickpaySubscriptionCart extends ObjectModel
     }
 
     /**
+     * Get subscription cart ID by Prestashop cart ID
+     *
+     * @param $cartId
+     * @return int
+     */
+    public static function getIdByCartId($cartId)
+    {
+        $sql = new DbQuery();
+        $sql->select(self::$definition['primary']);
+        $sql->from(self::$definition['table']);
+        $sql->where('`id_cart` = ' . $cartId);
+
+        return (int) \Db::getInstance()->getValue($sql);
+    }
+
+    /**
      * Get the selected plan and frequency for the cart
      *
      * @param $idCart
